@@ -1,0 +1,197 @@
+/* 资源站样式 */
+body {
+    background-color: #f8f9fa;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.navbar-brand {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.breadcrumb {
+    background-color: transparent;
+    padding: 0.5rem 0;
+    margin-bottom: 0;
+}
+
+.breadcrumb-item a {
+    text-decoration: none;
+    color: #6c757d;
+    transition: color 0.2s;
+}
+
+.breadcrumb-item a:hover {
+    color: #0d6efd;
+}
+
+.breadcrumb-item.active a {
+    color: #495057;
+    font-weight: 500;
+}
+
+.table th {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #6c757d;
+    border-top: none;
+    white-space: nowrap;
+}
+
+.table tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.file-icon {
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    font-size: 12px;
+    margin-right: 8px;
+}
+
+.folder-icon {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.file-icon-default {
+    background-color: #e9ecef;
+    color: #495057;
+}
+
+.file-icon-zip {
+    background-color: #ffeaa7;
+    color: #e17055;
+}
+
+.file-icon-image {
+    background-color: #74b9ff;
+    color: white;
+}
+
+.file-icon-pdf {
+    background-color: #ff7675;
+    color: white;
+}
+
+.file-icon-video {
+    background-color: #a29bfe;
+    color: white;
+}
+
+.file-icon-text {
+    background-color: #00b894;
+    color: white;
+}
+
+.file-item.selected {
+    background-color: #e3f2fd !important;
+}
+
+.file-item.selected td {
+    border-color: #bbdefb;
+}
+
+.context-menu {
+    position: fixed;
+    display: none;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    min-width: 160px;
+    overflow: hidden;
+}
+
+.context-menu-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 14px;
+    color: #495057;
+}
+
+.context-menu-item:hover {
+    background-color: #f8f9fa;
+}
+
+.context-menu-divider {
+    height: 1px;
+    background-color: #e9ecef;
+    margin: 4px 0;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .navbar .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+}
+
+/* 文件类型颜色标签 */
+.file-type-badge {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+}
+
+.file-type-folder {
+    background-color: #e3f2fd;
+    color: #1565c0;
+}
+
+.file-type-zip {
+    background-color: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.file-type-image {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.file-type-pdf {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.file-item {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
