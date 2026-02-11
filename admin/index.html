@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="个人主页后台管理">
+    <title>后台管理 - 个人主页</title>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- 背景 -->
+    <div class="admin-bg"></div>
+
+    <!-- 登录页面 -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-container glass">
+            <div class="login-header">
+                <span class="login-logo">🔐</span>
+                <h2>后台登录</h2>
+                <p>请输入账号密码以访问管理后台</p>
+            </div>
+            <form id="loginForm" class="login-form">
+                <div class="login-form-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="loginUsername" placeholder="用户名" required autocomplete="username">
+                </div>
+                <div class="login-form-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="loginPassword" placeholder="密码" required autocomplete="current-password">
+                    <button type="button" class="toggle-password" id="togglePassword">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <div class="login-error" id="loginError"></div>
+                <button type="submit" class="btn btn-primary login-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>登 录</span>
+                </button>
+            </form>
+            <div class="login-footer">
+                <a href="../index.html"><i class="fas fa-home"></i> 返回主页</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 侧边栏 -->
+    <aside class="sidebar glass" id="sidebar">
+        <div class="sidebar-header">
+            <span class="logo">⚙️</span>
+            <h2>后台管理</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#profile" class="nav-item active" data-section="profile">
+                <i class="fas fa-user"></i>
+                <span>个人信息</span>
+            </a>
+            <a href="#about" class="nav-item" data-section="about">
+                <i class="fas fa-info-circle"></i>
+                <span>关于我</span>
+            </a>
+            <a href="#skills" class="nav-item" data-section="skills">
+                <i class="fas fa-code"></i>
+                <span>技能管理</span>
+            </a>
+            <a href="#projects" class="nav-item" data-section="projects">
+                <i class="fas fa-folder-open"></i>
+                <span>项目管理</span>
+            </a>
+            <a href="#contact" class="nav-item" data-section="contact">
+                <i class="fas fa-address-book"></i>
+                <span>联系方式</span>
+            </a>
+            <a href="#social" class="nav-item" data-section="social">
+                <i class="fas fa-share-alt"></i>
+                <span>社交链接</span>
+            </a>
+            <a href="#messages" class="nav-item" data-section="messages">
+                <i class="fas fa-envelope"></i>
+                <span>留言管理</span>
+                <span class="badge" id="unreadBadge">0</span>
+            </a>
+            <a href="#settings" class="nav-item" data-section="settings">
+                <i class="fas fa-cog"></i>
+                <span>系统设置</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="../index.html" class="btn-back">
+                <i class="fas fa-home"></i>
+                <span>返回主页</span>
+            </a>
+            <button class="btn-logout" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>退出登录</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- 移动端菜单按钮 -->
+    <button class="mobile-menu-btn glass" id="mobileMenuBtn">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <!-- 顶部栏 -->
+        <header class="top-bar glass">
+            <div class="top-bar-left">
+                <h1 id="pageTitle">个人信息</h1>
+            </div>
+            <div class="top-bar-right">
+                <button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换深色/浅色主题">
+                    <i class="fas fa-sun"></i>
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="user-info">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="头像" class="user-avatar" id="adminAvatar">
+                    <span id="adminName">管理员</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- 雨云 IDC 广告（可关闭） -->
+        <div class="admin-ad glass" id="adminAd">
+            <a href="https://www.rainyun.com/freehost_" target="_blank" rel="noopener noreferrer" class="admin-ad-link">
+                <span class="admin-ad-icon">☁️</span>
+                <span class="admin-ad-text"><strong>雨云 Rainyun</strong> — 稳定好用的云服务器与 IDC 服务，新用户有优惠</span>
+                <span class="admin-ad-cta">去看看 <i class="fas fa-external-link-alt"></i></span>
+            </a>
+            <button type="button" class="admin-ad-close" id="adminAdClose" title="关闭广告" aria-label="关闭广告">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- 内容区域 -->
+        <div class="content-area">
+            <!-- 个人信息 -->
+            <section class="admin-section active" id="section-profile">
+                <div class="section-header">
+                    <h2><i class="fas fa-user"></i> 个人信息设置</h2>
+                    <p>设置您的基本信息，这些信息将展示在主页上</p>
+                </div>
+                <div class="card glass">
+                    <form id="profileForm" class="admin-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="profileName">姓名 / 昵称</label>
+                                <input type="text" id="profileName" placeholder="输入您的姓名或昵称">
+                            </div>
+                            <div class="form-group">
+                                <label for="profileTitle">职位 / 头衔</label>
+                                <input type="text" id="profileTitle" placeholder="例如：全栈开发者">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="profileDesc">个人简介</label>
+                            <textarea id="profileDesc" rows="3" placeholder="一句话介绍自己"></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="profileAvatar">头像链接</label>
+                                <input type="url" id="profileAvatar" placeholder="输入头像图片URL">
+                            </div>
+                            <div class="form-group">
+                                <label for="profileSiteName">网站名称</label>
+                                <input type="text" id="profileSiteName" placeholder="显示在导航栏">
+                            </div>
+                        </div>
+                        <div class="avatar-preview">
+                            <img id="avatarPreview" src="" alt="头像预览">
+                            <p>头像预览</p>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> 保存更改
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- 关于我 -->
+            <section class="admin-section" id="section-about">
+                <div class="section-header">
+                    <h2><i class="fas fa-info-circle"></i> 关于我</h2>
+                    <p>编辑"关于我"区域的内容</p>
+                </div>
+                <div class="card glass">
+                    <form id="aboutForm" class="admin-form">
+                        <div class="form-group">
+                            <label>自我介绍（每段一个文本框）</label>
+                            <div id="aboutParagraphs" class="paragraph-list">
+                                <!-- 动态生成 -->
+                            </div>
+                            <button type="button" class="btn btn-secondary btn-small" id="addParagraph">
+                                <i class="fas fa-plus"></i> 添加段落
+                            </button>
+                        </div>
+                        <div class="form-row stats-row">
+                            <div class="form-group">
+                                <label for="statProjects">完成项目数</label>
+                                <input type="number" id="statProjects" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="statExperience">从业年限</label>
+                                <input type="number" id="statExperience" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="statClients">服务客户数</label>
+                                <input type="number" id="statClients" min="0">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> 保存更改
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- 技能管理 -->
+            <section class="admin-section" id="section-skills">
+                <div class="section-header">
+                    <h2><i class="fas fa-code"></i> 技能管理</h2>
+                    <p>管理您的专业技能展示</p>
+                </div>
+                <div class="card glass">
+                    <div class="list-header">
+                        <h3>技能列表</h3>
+                        <button class="btn btn-primary btn-small" id="addSkillBtn">
+                            <i class="fas fa-plus"></i> 添加技能
+                        </button>
+                    </div>
+                    <div class="items-list" id="skillsList">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- 项目管理 -->
+            <section class="admin-section" id="section-projects">
+                <div class="section-header">
+                    <h2><i class="fas fa-folder-open"></i> 项目管理</h2>
+                    <p>管理您的项目作品展示</p>
+                </div>
+                <div class="card glass">
+                    <div class="list-header">
+                        <h3>项目列表</h3>
+                        <button class="btn btn-primary btn-small" id="addProjectBtn">
+                            <i class="fas fa-plus"></i> 添加项目
+                        </button>
+                    </div>
+                    <div class="items-list" id="projectsList">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- 联系方式 -->
+            <section class="admin-section" id="section-contact">
+                <div class="section-header">
+                    <h2><i class="fas fa-address-book"></i> 联系方式</h2>
+                    <p>设置您的联系信息</p>
+                </div>
+                <div class="card glass">
+                    <form id="contactForm" class="admin-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="contactEmail">
+                                    <i class="fas fa-envelope"></i> 电子邮箱
+                                </label>
+                                <input type="email" id="contactEmail" placeholder="your@email.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="contactPhone">
+                                    <i class="fas fa-phone"></i> 联系电话
+                                </label>
+                                <input type="tel" id="contactPhone" placeholder="+86 123 4567 8900">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="contactLocation">
+                                    <i class="fas fa-map-marker-alt"></i> 所在地区
+                                </label>
+                                <input type="text" id="contactLocation" placeholder="中国，北京">
+                            </div>
+                            <div class="form-group">
+                                <label for="contactWechat">
+                                    <i class="fab fa-weixin"></i> 微信号
+                                </label>
+                                <input type="text" id="contactWechat" placeholder="your_wechat_id">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> 保存更改
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- 社交链接 -->
+            <section class="admin-section" id="section-social">
+                <div class="section-header">
+                    <h2><i class="fas fa-share-alt"></i> 社交链接</h2>
+                    <p>管理您的社交媒体链接</p>
+                </div>
+                <div class="card glass">
+                    <div class="list-header">
+                        <h3>链接列表</h3>
+                        <button class="btn btn-primary btn-small" id="addSocialBtn">
+                            <i class="fas fa-plus"></i> 添加链接
+                        </button>
+                    </div>
+                    <div class="items-list" id="socialList">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- 留言管理 -->
+            <section class="admin-section" id="section-messages">
+                <div class="section-header">
+                    <h2><i class="fas fa-envelope"></i> 留言管理</h2>
+                    <p>查看访客留言</p>
+                </div>
+                <div class="card glass">
+                    <div class="list-header">
+                        <h3>留言列表</h3>
+                        <span class="message-count" id="messageCount">共 0 条留言</span>
+                    </div>
+                    <div class="messages-list" id="messagesList">
+                        <!-- 动态生成 -->
+                    </div>
+                    <div class="empty-state" id="emptyMessages">
+                        <i class="fas fa-inbox"></i>
+                        <p>暂无留言</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 系统设置 -->
+            <section class="admin-section" id="section-settings">
+                <div class="section-header">
+                    <h2><i class="fas fa-cog"></i> 系统设置</h2>
+                    <p>配置网站功能和偏好</p>
+                </div>
+                <div class="card glass">
+                    <form id="settingsForm" class="admin-form">
+                        <div class="settings-group">
+                            <h3><i class="fas fa-palette"></i> 主题设置</h3>
+                            <div class="form-group">
+                                <label>主题模式</label>
+                                <div class="radio-group">
+                                    <label class="radio-item">
+                                        <input type="radio" name="themeMode" value="light">
+                                        <span class="radio-label"><i class="fas fa-sun"></i> 浅色模式</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="themeMode" value="dark">
+                                        <span class="radio-label"><i class="fas fa-moon"></i> 深色模式</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <input type="radio" name="themeMode" value="auto">
+                                        <span class="radio-label"><i class="fas fa-magic"></i> 自动切换</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-row auto-theme-times" id="autoThemeTimes">
+                                <div class="form-group">
+                                    <label for="autoThemeLight">白天模式开始时间</label>
+                                    <input type="time" id="autoThemeLight" value="06:00">
+                                </div>
+                                <div class="form-group">
+                                    <label for="autoThemeDark">夜间模式开始时间</label>
+                                    <input type="time" id="autoThemeDark" value="18:00">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="settings-group">
+                            <h3><i class="fas fa-bullhorn"></i> 个性化广告</h3>
+                            <p class="settings-desc">关闭后，后台顶部的合作推广广告将不再显示</p>
+                            <div class="form-group">
+                                <label class="checkbox-item">
+                                    <input type="checkbox" id="closePersonalizedAd" name="closePersonalizedAd">
+                                    <span class="checkbox-label">关闭个性化广告（永不显示推广条）</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="settings-group">
+                            <h3><i class="fas fa-key"></i> 账号安全</h3>
+                            <p class="settings-desc">修改管理后台的登录账号和密码</p>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="newUsername">新用户名</label>
+                                    <input type="text" id="newUsername" placeholder="留空则不修改">
+                                </div>
+                                <div class="form-group">
+                                    <label for="newPassword">新密码</label>
+                                    <input type="password" id="newPassword" placeholder="留空则不修改">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="currentPassword">当前密码 <span class="required">*</span></label>
+                                <input type="password" id="currentPassword" placeholder="请输入当前密码以确认修改" required>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-primary" id="updateAuthBtn">
+                                    <i class="fas fa-shield-alt"></i> 更新账号信息
+                                </button>
+                            </div>
+                        </div>
+                        <div class="settings-group">
+                            <h3><i class="fas fa-database"></i> 数据管理</h3>
+                            <div class="data-actions">
+                                <button type="button" class="btn btn-secondary" id="exportData">
+                                    <i class="fas fa-download"></i> 导出数据
+                                </button>
+                                <label class="btn btn-secondary">
+                                    <i class="fas fa-upload"></i> 导入数据
+                                    <input type="file" id="importData" accept=".json" hidden>
+                                </label>
+                                <button type="button" class="btn btn-danger" id="resetData">
+                                    <i class="fas fa-trash-alt"></i> 重置数据
+                                </button>
+                            </div>
+                        </div>
+                        <div class="settings-group settings-group-danger">
+                            <h3><i class="fas fa-skull-crossbones"></i> 一键跑路</h3>
+                            <p class="settings-desc">不再运营本站时使用。将删除全站文件（含后台、API、数据），仅保留首页「站长已跑路」提示。<strong>不可恢复，请务必先导出数据备份。</strong></p>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-danger" id="nukeSiteBtn">
+                                    <i class="fas fa-running"></i> 一键跑路
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> 保存设置
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- 模态框 -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal glass" id="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">标题</h3>
+                <button class="modal-close" id="modalClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- 动态内容 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 消息 -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="../js/data.js" defer></script>
+    <script src="../js/admin.js" defer></script>
+</body>
+</html>
