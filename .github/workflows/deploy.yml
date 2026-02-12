@@ -3,32 +3,28 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
-  workflow_dispatch:
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
 
 jobs:
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
         
-      - name: Create .nojekyll file
+      # 重命名所有包含特殊字符的文件
+      - name: Fix filenames
         run: |
-          touch .nojekyll
-          echo "Disabled Jekyll processing" > README_NOJEKYLL.txt
-          
+          find . -name "*@*" -exec rename 's/@/_/g' {} \;
+          find . -name "* *" -exec rename 's/ /_/g' {} \;
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add .
+          git commit -m "Automatically fix filenames" || echo "No changes to commit"
+        
+      # 创建 .nojekyll 文件
+      - name: Create .nojekyll
+        run: touch .nojekyll
+        
       - name: Setup Pages
         uses: actions/configure-pages@v4
         
@@ -38,5 +34,4 @@ jobs:
           path: '.'
           
       - name: Deploy to GitHub Pages
-        id: deployment
         uses: actions/deploy-pages@v4
