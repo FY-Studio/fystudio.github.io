@@ -3,72 +3,680 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FY Studio Resource</title>
+    <title>FY Studio Resource - File Manager</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="css/style.css">
+    <style>
+        :root {
+            --primary-color: #4dabf7;
+            --primary-dark: #339af0;
+            --primary-light: #d0ebff;
+            --success-color: #40c057;
+            --danger-color: #fa5252;
+            --warning-color: #ffd43b;
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #e3f2fd 100%);
+            --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            --hover-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+            --transition-speed: 0.3s;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Navbar Styling */
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
+            box-shadow: 0 4px 20px rgba(13, 110, 253, 0.2);
+            border-radius: 0 0 25px 25px;
+            padding: 0.8rem 0;
+            backdrop-filter: blur(10px);
+            border: none;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.3rem;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .navbar-brand:hover {
+            transform: translateX(5px);
+        }
+
+        .navbar-brand i {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* Breadcrumb Styling - 修复点击问题 */
+        .breadcrumb {
+            background: white;
+            border-radius: 15px;
+            padding: 0.85rem 1.25rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(13, 110, 253, 0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .breadcrumb-item a {
+            text-decoration: none;
+            color: #6c757d;
+            font-weight: 500;
+            padding: 0.3rem 0.8rem;
+            border-radius: 8px;
+            transition: all var(--transition-speed);
+            position: relative;
+            display: inline-block;
+        }
+
+        .breadcrumb-item a:hover {
+            color: var(--primary-dark);
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+        }
+
+        .breadcrumb-item a::after {
+            content: '›';
+            margin: 0 8px;
+            color: #adb5bd;
+        }
+
+        .breadcrumb-item.active a {
+            color: #495057;
+            background: none;
+            cursor: default;
+            font-weight: 600;
+        }
+
+        .breadcrumb-item.active a::after {
+            display: none;
+        }
+
+        /* Card Styling */
+        .card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            background: white;
+            transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        /* Table Styling */
+        .table-container {
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .table {
+            margin-bottom: 0;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .table thead {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        }
+
+        .table thead th {
+            border: none;
+            padding: 1rem 1.25rem;
+            font-weight: 600;
+            color: #495057;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #dee2e6;
+            position: sticky;
+            top: 0;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .table tbody tr {
+            transition: all 0.25s;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f3f5;
+        }
+
+        .table tbody tr:hover {
+            background: linear-gradient(90deg, rgba(77, 171, 247, 0.08), rgba(77, 171, 247, 0.04));
+            transform: translateX(5px);
+            box-shadow: inset 5px 0 0 var(--primary-color);
+        }
+
+        .table tbody tr.selected {
+            background: linear-gradient(90deg, rgba(77, 171, 247, 0.15), rgba(77, 171, 247, 0.08));
+            box-shadow: inset 5px 0 0 var(--primary-color), 0 2px 8px rgba(77, 171, 247, 0.2);
+        }
+
+        .table td {
+            padding: 1rem 1.25rem;
+            vertical-align: middle;
+            transition: background-color var(--transition-speed);
+        }
+
+        /* File Icon Styling */
+        .file-icon {
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .file-icon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.2);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .file-icon:hover {
+            transform: scale(1.15) rotate(5deg);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .file-icon:hover::before {
+            opacity: 1;
+        }
+
+        .folder-icon {
+            background: linear-gradient(135deg, #ffd166, #ffb347);
+            color: #7a5a00;
+        }
+
+        .file-icon-zip {
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            color: #9c1b1b;
+        }
+
+        .file-icon-image {
+            background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+            color: #1a4b8c;
+        }
+
+        .file-icon-pdf {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            color: white;
+        }
+
+        .file-icon-video {
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            color: #2a4d69;
+        }
+
+        .file-icon-audio {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+        }
+
+        .file-icon-code {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .file-icon-office {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+        }
+
+        .file-icon-default {
+            background: linear-gradient(135deg, #e9ecef, #dee2e6);
+            color: #495057;
+        }
+
+        /* File Name Styling */
+        .file-name {
+            font-weight: 500;
+            color: #343a40;
+            transition: color var(--transition-speed);
+            position: relative;
+            padding-left: 5px;
+        }
+
+        .file-item:hover .file-name {
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        .file-name::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -2px;
+            width: 0;
+            height: 2px;
+            background: var(--primary-color);
+            transition: width var(--transition-speed);
+        }
+
+        .file-item:hover .file-name::before {
+            width: 100%;
+        }
+
+        /* Button Styling */
+        .btn {
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            border: none;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #37b24d);
+        }
+
+        .btn-outline-primary {
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-outline-primary:hover {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border-color: transparent;
+        }
+
+        .rounded-pill {
+            padding-left: 1.25rem;
+            padding-right: 1.25rem;
+        }
+
+        /* Checkbox Styling */
+        .form-check-input {
+            width: 20px;
+            height: 20px;
+            border-radius: 6px;
+            border: 2px solid #dee2e6;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            position: relative;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e");
+        }
+
+        .form-check-input:focus {
+            box-shadow: 0 0 0 0.25rem rgba(77, 171, 247, 0.25);
+        }
+
+        .form-check-input:hover {
+            border-color: var(--primary-color);
+            transform: scale(1.1);
+        }
+
+        /* Context Menu */
+        .context-menu {
+            position: fixed;
+            display: none;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            z-index: 9999;
+            min-width: 200px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: menuAppear 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes menuAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .context-menu-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            color: #495057;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .context-menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .context-menu-item:hover {
+            background: linear-gradient(90deg, rgba(77, 171, 247, 0.1), rgba(77, 171, 247, 0.05));
+            color: var(--primary-dark);
+            transform: translateX(5px);
+            padding-left: 25px;
+        }
+
+        .context-menu-item i {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        /* Toast Notifications */
+        .toast-notification {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 16px 24px;
+            border-radius: 15px;
+            z-index: 9999;
+            background: linear-gradient(135deg, #4dabf7, #339af0);
+            color: white;
+            box-shadow: 0 15px 35px rgba(13, 110, 253, 0.3);
+            animation: toastSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                       toastFloat 3s ease-in-out infinite;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-weight: 500;
+            max-width: 350px;
+        }
+
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+
+        @keyframes toastFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .toast-notification::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #fff, transparent);
+            border-radius: 15px 15px 0 0;
+        }
+
+        /* Loading Animation */
+        #loading {
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .spinner-border {
+            width: 4rem;
+            height: 4rem;
+            border-width: 0.25em;
+            border-right-color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+            animation: spin 1s linear infinite, colorShift 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes colorShift {
+            0% { border-top-color: var(--primary-color); border-left-color: transparent; }
+            100% { border-top-color: transparent; border-left-color: var(--primary-color); }
+        }
+
+        /* Empty State */
+        #emptyState {
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0.6;
+        }
+
+        #emptyState i {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: linear-gradient(180deg, #f1f3f5, #e9ecef);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--primary-color), var(--primary-dark));
+            border-radius: 10px;
+            border: 2px solid #f1f3f5;
+            transition: all 0.3s;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, var(--primary-dark), #228be6);
+        }
+
+        /* Selection Styling */
+        ::selection {
+            background: rgba(77, 171, 247, 0.3);
+            color: #212529;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+
+            .btn {
+                padding: 0.375rem 0.75rem;
+                font-size: 0.875rem;
+            }
+
+            .table {
+                font-size: 0.9rem;
+            }
+
+            .file-icon {
+                width: 30px;
+                height: 30px;
+                font-size: 14px;
+            }
+
+            .toast-notification {
+                bottom: 20px;
+                right: 20px;
+                left: 20px;
+                max-width: none;
+            }
+        }
+
+        /* Glass Effect */
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* File Size Badge */
+        .file-size-badge {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            color: #6c757d;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid #dee2e6;
+        }
+
+        /* Hover Glow Effect */
+        .hover-glow:hover {
+            box-shadow: 0 0 20px rgba(77, 171, 247, 0.3);
+        }
+
+        /* Pulse Animation for New Items */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(77, 171, 247, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(77, 171, 247, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(77, 171, 247, 0); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-dark bg-primary sticky-top rounded-bottom">
         <div class="container-fluid">
             <span class="navbar-brand mb-0 h1 fw-bold">
-                <i class="bi bi-cloud-arrow-down-fill me-2"></i>FY Studio Resources
+                <i class="bi bi-cloud-arrow-down-fill me-2"></i>FY Studio Resource Hub
             </span>
             <div class="d-flex align-items-center">
-                <button class="btn btn-sm btn-light me-2 rounded-pill" id="backBtn" title="Go Back">
+                <button class="btn btn-light me-2 rounded-pill hover-glow" id="backBtn" title="Go Back (Backspace)">
                     <i class="bi bi-arrow-left"></i>
                 </button>
-                <button class="btn btn-sm btn-light me-2 rounded-pill" id="refreshBtn" title="Refresh">
+                <button class="btn btn-light me-2 rounded-pill hover-glow" id="refreshBtn" title="Refresh (F5)">
                     <i class="bi bi-arrow-clockwise"></i>
                 </button>
-                <button class="btn btn-sm btn-success rounded-pill" id="downloadSelectedBtn" disabled>
+                <button class="btn btn-success rounded-pill hover-glow" id="downloadSelectedBtn" disabled>
                     <i class="bi bi-download me-1"></i>Download
                 </button>
             </div>
         </div>
     </nav>
 
-    <div class="container-fluid mt-2">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0" id="breadcrumb">
-                <li class="breadcrumb-item"><a href="#" data-path=".">Root</a></li>
+    <div class="container-fluid mt-3">
+        <nav aria-label="breadcrumb" class="glass-effect">
+            <ol class="breadcrumb mb-0 p-3" id="breadcrumb">
+                <li class="breadcrumb-item"><a href="#" data-path=".">Home</a></li>
             </ol>
         </nav>
     </div>
 
-    <div class="container-fluid mt-2">
+    <div class="container-fluid mt-3 mb-4">
         <div class="row">
             <div class="col-12">
-                <div class="card rounded-3">
+                <div class="card rounded-3 glass-effect">
                     <div class="card-body p-0">
                         <div id="loading" class="text-center p-5">
                             <div class="spinner-border text-primary" role="status">
                                 <span class="visually-hidden">Loading...</span>
                             </div>
-                            <p class="mt-2 text-muted">Loading file list...</p>
+                            <p class="mt-3 text-muted fw-semibold">Loading resources...</p>
+                            <small class="text-muted">Fetching files from repository</small>
                         </div>
 
                         <div id="fileListContainer" style="display: none;">
-                            <table class="table table-hover table-sm mb-0" id="fileTable">
-                                <thead>
-                                    <tr>
-                                        <th width="30">
-                                            <input type="checkbox" id="selectAllCheckbox">
-                                        </th>
-                                        <th width="40" class="text-center">Type</th>
-                                        <th>Name</th>
-                                        <th width="100" class="text-center">Size</th>
-                                        <th width="80" class="text-center">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="fileList">
-                                </tbody>
-                            </table>
+                            <div class="table-container">
+                                <table class="table table-hover table-sm mb-0" id="fileTable">
+                                    <thead>
+                                        <tr>
+                                            <th width="30" class="ps-4">
+                                                <input type="checkbox" id="selectAllCheckbox" class="form-check-input">
+                                            </th>
+                                            <th width="50" class="text-center">Type</th>
+                                            <th>Name</th>
+                                            <th width="120" class="text-center">Size</th>
+                                            <th width="100" class="text-center">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="fileList">
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
 
                         <div id="emptyState" class="text-center p-5" style="display: none;">
-                            <i class="bi bi-folder-x display-1 text-muted"></i>
-                            <h5 class="text-muted">This folder is empty</h5>
+                            <i class="bi bi-folder-x text-muted"></i>
+                            <h5 class="text-muted mt-3">This folder is empty</h5>
+                            <p class="text-muted mb-0">No files or folders found</p>
                         </div>
                     </div>
                 </div>
@@ -80,11 +688,582 @@
         <div class="context-menu-item" id="menuDownload">
             <i class="bi bi-download me-2"></i>Download
         </div>
+        <div class="context-menu-item" id="menuOpen">
+            <i class="bi bi-folder2-open me-2"></i>Open
+        </div>
+        <div class="context-menu-item" id="menuSelect">
+            <i class="bi bi-check-square me-2"></i>Select
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/main.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    let selectedFiles = new Set();
+    let currentPath = 'uploads';
+    let allFiles = [];
+    let currentFiles = [];
+
+    const fileList = document.getElementById('fileList');
+    const fileListContainer = document.getElementById('fileListContainer');
+    const loading = document.getElementById('loading');
+    const emptyState = document.getElementById('emptyState');
+    const breadcrumb = document.getElementById('breadcrumb');
+    const contextMenu = document.getElementById('contextMenu');
+    const backBtn = document.getElementById('backBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    const downloadSelectedBtn = document.getElementById('downloadSelectedBtn');
+
+    const fileIcons = {
+        'folder': 'bi-folder-fill',
+        'zip': 'bi-file-earmark-zip-fill',
+        'rar': 'bi-file-earmark-zip-fill',
+        '7z': 'bi-file-earmark-zip-fill',
+        'pdf': 'bi-file-earmark-pdf-fill',
+        'jpg': 'bi-file-image-fill',
+        'jpeg': 'bi-file-image-fill',
+        'png': 'bi-file-image-fill',
+        'gif': 'bi-file-image-fill',
+        'txt': 'bi-file-text-fill',
+        'md': 'bi-file-text-fill',
+        'doc': 'bi-file-earmark-word-fill',
+        'docx': 'bi-file-earmark-word-fill',
+        'xls': 'bi-file-earmark-excel-fill',
+        'xlsx': 'bi-file-earmark-excel-fill',
+        'ppt': 'bi-file-earmark-ppt-fill',
+        'pptx': 'bi-file-earmark-ppt-fill',
+        'mp3': 'bi-file-music-fill',
+        'wav': 'bi-file-music-fill',
+        'mp4': 'bi-file-play-fill',
+        'avi': 'bi-file-play-fill',
+        'mov': 'bi-file-play-fill',
+        'html': 'bi-file-code-fill',
+        'css': 'bi-file-code-fill',
+        'js': 'bi-file-code-fill',
+        'json': 'bi-file-code-fill',
+        'php': 'bi-file-code-fill',
+        'py': 'bi-file-code-fill',
+        'java': 'bi-file-code-fill',
+        'cpp': 'bi-file-code-fill',
+        'c': 'bi-file-code-fill',
+        'default': 'bi-file-earmark-fill'
+    };
+
+    const fileTypeColors = {
+        'folder': 'folder-icon',
+        'zip': 'file-icon-zip',
+        'rar': 'file-icon-zip',
+        '7z': 'file-icon-zip',
+        'pdf': 'file-icon-pdf',
+        'jpg': 'file-icon-image',
+        'jpeg': 'file-icon-image',
+        'png': 'file-icon-image',
+        'gif': 'file-icon-image',
+        'mp3': 'file-icon-audio',
+        'wav': 'file-icon-audio',
+        'mp4': 'file-icon-video',
+        'avi': 'file-icon-video',
+        'mov': 'file-icon-video',
+        'txt': 'file-icon-text',
+        'md': 'file-icon-text',
+        'doc': 'file-icon-office',
+        'docx': 'file-icon-office',
+        'xls': 'file-icon-office',
+        'xlsx': 'file-icon-office',
+        'ppt': 'file-icon-office',
+        'pptx': 'file-icon-office',
+        'html': 'file-icon-code',
+        'css': 'file-icon-code',
+        'js': 'file-icon-code',
+        'json': 'file-icon-code',
+        'php': 'file-icon-code',
+        'py': 'file-icon-code',
+        'java': 'file-icon-code',
+        'cpp': 'file-icon-code',
+        'c': 'file-icon-code',
+        'default': 'file-icon-default'
+    };
+
+    init();
+
+    async function init() {
+        setupEventListeners();
+        await loadFiles(currentPath);
+    }
+
+    function setupEventListeners() {
+        backBtn.addEventListener('click', goBack);
+        refreshBtn.addEventListener('click', () => loadFiles(currentPath));
+        selectAllCheckbox.addEventListener('change', toggleSelectAll);
+        downloadSelectedBtn.addEventListener('click', downloadSelectedFiles);
+        document.getElementById('menuDownload').addEventListener('click', () => {
+            downloadSelectedFiles();
+            hideContextMenu();
+        });
+        document.addEventListener('click', hideContextMenu);
+        document.addEventListener('keydown', handleKeyDown);
+    }
+
+    async function loadFiles(path = 'uploads') {
+        showLoading();
+        currentPath = path;
+        try {
+            const files = await fetchFilesFromGitHub(path);
+            allFiles = files;
+            currentFiles = files;
+            displayFiles(files);
+            updateBreadcrumb(path);
+            hideLoading();
+            updateDownloadButton();
+        } catch (error) {
+            console.error('Error loading files:', error);
+            hideLoading();
+            showEmptyState();
+        }
+    }
+
+    async function fetchFilesFromGitHub(path) {
+        const apiUrl = `https://api.github.com/repos/FY-Studio/fystudio.github.io/contents/${path === 'uploads' ? 'uploads' : path}`;
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+            throw new Error(`GitHub API error: ${response.status}`);
+        }
+        const data = await response.json();
+        return data.map(item => {
+            const isDir = item.type === 'dir';
+            const ext = isDir ? '' : getFileExtension(item.name);
+            return {
+                name: item.name,
+                type: isDir ? 'folder' : 'file',
+                path: item.path,
+                size: formatFileSize(item.size || 0),
+                        downloadUrl: item.download_url,
+                        ext: ext
+            };
+        });
+    }
+
+    function displayFiles(files) {
+        fileList.innerHTML = '';
+        clearSelection(); // 清除选中状态
+
+        if (files.length === 0) {
+            showEmptyState();
+            return;
+        }
+        hideEmptyState();
+        files.forEach((file, index) => {
+            const row = createFileRow(file, index);
+            fileList.appendChild(row);
+        });
+        updateSelectAllCheckbox();
+    }
+
+    function createFileRow(file, index) {
+        const row = document.createElement('tr');
+        row.className = 'file-item';
+        row.dataset.path = file.path;
+        row.dataset.type = file.type;
+        row.dataset.index = index;
+
+        const fileIcon = getFileIcon(file);
+        const fileIconClass = getFileIconClass(file);
+
+        row.innerHTML = `
+        <td>
+        <input type="checkbox" class="form-check-input file-checkbox"
+        data-path="${file.path}">
+        </td>
+        <td class="text-center">
+        <span class="file-icon ${fileIconClass}">
+        <i class="bi ${fileIcon}"></i>
+        </span>
+        </td>
+        <td>
+        <div class="d-flex align-items-center">
+        <span class="file-name">${file.name}</span>
+        </div>
+        </td>
+        <td class="text-center"><small class="text-muted">${file.size}</small></td>
+        <td class="text-center">
+        ${file.type === 'folder' ?
+            `<button class="btn btn-sm btn-outline-primary open-btn" data-path="${file.path}">
+            <i class="bi bi-folder2-open"></i>
+            </button>` :
+            `<button class="btn btn-sm btn-outline-primary download-btn" data-path="${file.path}">
+            <i class="bi bi-download"></i>
+            </button>`
+        }
+        </td>
+        `;
+
+        row.addEventListener('click', (e) => {
+            if (e.target.type === 'checkbox' || e.target.classList.contains('file-checkbox')) {
+                return;
+            }
+            if (e.target.tagName === 'BUTTON') {
+                return;
+            }
+            toggleFileSelection(file.path);
+        });
+
+        row.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            clearSelection();
+            selectFile(file.path);
+            showContextMenu(e, file);
+        });
+
+        const openBtn = row.querySelector('.open-btn');
+        if (openBtn) {
+            openBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                loadFiles(file.path);
+            });
+        }
+
+        const downloadBtn = row.querySelector('.download-btn');
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                downloadFile(file);
+            });
+        }
+
+        const checkbox = row.querySelector('.file-checkbox');
+        checkbox.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleFileSelection(file.path, checkbox.checked);
+        });
+
+        return row;
+    }
+
+    function toggleFileSelection(filePath, checked = null) {
+        const checkbox = document.querySelector(`.file-checkbox[data-path="${filePath}"]`);
+        const row = document.querySelector(`.file-item[data-path="${filePath}"]`);
+
+        if (checked === null) {
+            checked = !selectedFiles.has(filePath);
+        }
+
+        if (checked) {
+            selectedFiles.add(filePath);
+            if (row) row.classList.add('selected');
+            if (checkbox) checkbox.checked = true;
+        } else {
+            selectedFiles.delete(filePath);
+            if (row) row.classList.remove('selected');
+            if (checkbox) checkbox.checked = false;
+        }
+
+        updateSelectAllCheckbox();
+        updateDownloadButton();
+    }
+
+    function selectFile(filePath) {
+        selectedFiles.add(filePath);
+        const row = document.querySelector(`.file-item[data-path="${filePath}"]`);
+        if (row) row.classList.add('selected');
+        const checkbox = document.querySelector(`.file-checkbox[data-path="${filePath}"]`);
+        if (checkbox) checkbox.checked = true;
+        updateDownloadButton();
+    }
+
+    function clearSelection() {
+        selectedFiles.forEach(path => {
+            const row = document.querySelector(`.file-item[data-path="${path}"]`);
+            if (row) row.classList.remove('selected');
+            const checkbox = document.querySelector(`.file-checkbox[data-path="${path}"]`);
+            if (checkbox) checkbox.checked = false;
+        });
+            selectedFiles.clear();
+            updateDownloadButton();
+    }
+
+    function toggleSelectAll() {
+        const checked = selectAllCheckbox.checked;
+        if (checked) {
+            currentFiles.forEach(file => {
+                selectedFiles.add(file.path);
+                const row = document.querySelector(`.file-item[data-path="${file.path}"]`);
+                if (row) row.classList.add('selected');
+                const checkbox = document.querySelector(`.file-checkbox[data-path="${file.path}"]`);
+                if (checkbox) checkbox.checked = true;
+            });
+        } else {
+            clearSelection();
+        }
+        updateDownloadButton();
+    }
+
+    function updateSelectAllCheckbox() {
+        const checkboxes = document.querySelectorAll('.file-checkbox');
+        const allChecked = checkboxes.length > 0 &&
+        Array.from(checkboxes).every(cb => cb.checked);
+        selectAllCheckbox.checked = allChecked;
+    }
+
+    function updateDownloadButton() {
+        const hasSelectedFiles = selectedFiles.size > 0;
+        downloadSelectedBtn.disabled = !hasSelectedFiles;
+        if (hasSelectedFiles) {
+            downloadSelectedBtn.innerHTML = `<i class="bi bi-download me-1"></i>Download (${selectedFiles.size})`;
+        } else {
+            downloadSelectedBtn.innerHTML = '<i class="bi bi-download me-1"></i>Download';
+        }
+    }
+
+    async function downloadFile(file) {
+        if (file.type === 'folder') {
+            loadFiles(file.path);
+            return;
+        }
+        let downloadUrl = file.downloadUrl;
+        if (!downloadUrl) {
+            downloadUrl = `https://raw.githubusercontent.com/FY-Studio/fystudio.github.io/main/${file.path}`;
+        }
+        window.open(downloadUrl, '_blank');
+        showToast(`Downloading: ${file.name}`);
+    }
+
+    async function downloadSelectedFiles() {
+        if (selectedFiles.size === 0) {
+            showToast('Please select files to download', 'warning');
+            return;
+        }
+        if (selectedFiles.size === 1) {
+            const path = Array.from(selectedFiles)[0];
+            const file = allFiles.find(f => f.path === path);
+            if (file) {
+                downloadFile(file);
+            }
+            return;
+        }
+        showToast('Creating zip file...', 'info');
+        const zip = new JSZip();
+        let fileCount = 0;
+        for (const path of selectedFiles) {
+            const file = allFiles.find(f => f.path === path);
+            if (file) {
+                if (file.type === 'folder') {
+                    await addFolderToZip(zip, file.path, file.path);
+                } else {
+                    await addFileToZip(zip, file);
+                }
+                fileCount++;
+            }
+        }
+        zip.generateAsync({ type: 'blob' }).then(content => {
+            saveAs(content, 'download.zip');
+            showToast(`Downloading ${fileCount} files as zip`);
+        });
+    }
+
+    async function addFolderToZip(zip, folderPath, basePath) {
+        try {
+            const files = await fetchFilesFromGitHub(folderPath);
+            for (const file of files) {
+                const relativePath = file.path.replace(basePath + '/', '');
+                if (file.type === 'folder') {
+                    await addFolderToZip(zip.folder(file.name), file.path, basePath);
+                } else {
+                    await addFileToZip(zip, file, relativePath);
+                }
+            }
+        } catch (error) {
+            console.error('Error adding folder to zip:', error);
+        }
+    }
+
+    async function addFileToZip(zip, file, relativePath = null) {
+        try {
+            let downloadUrl = file.downloadUrl;
+            if (!downloadUrl) {
+                downloadUrl = `https://raw.githubusercontent.com/FY-Studio/fystudio.github.io/main/${file.path}`;
+            }
+            const response = await fetch(downloadUrl);
+            if (!response.ok) throw new Error('Failed to fetch file');
+            const blob = await response.blob();
+            const filename = relativePath || file.name;
+            zip.file(filename, blob);
+        } catch (error) {
+            console.error('Error adding file to zip:', error);
+        }
+    }
+
+    function showContextMenu(event, file) {
+        contextMenu.style.left = event.pageX + 'px';
+        contextMenu.style.top = event.pageY + 'px';
+        contextMenu.style.display = 'block';
+    }
+
+    function hideContextMenu() {
+        contextMenu.style.display = 'none';
+    }
+
+    function goBack() {
+        if (currentPath === 'uploads') {
+            showToast('Already at root', 'info');
+            return;
+        }
+        const parentPath = getParentPath(currentPath);
+        loadFiles(parentPath);
+    }
+
+    function updateBreadcrumb(path) {
+        breadcrumb.innerHTML = '<li class="breadcrumb-item"><a href="#" data-path="uploads">Root</a></li>';
+        if (path === 'uploads') return;
+        const parts = path.split('/');
+        let current = 'uploads';
+        parts.forEach((part, index) => {
+            if (part === 'uploads' || part === '') return;
+            current += (current ? '/' : '') + part;
+            const isLast = index === parts.length - 1;
+            const li = document.createElement('li');
+            li.className = `breadcrumb-item ${isLast ? 'active' : ''}`;
+            if (isLast) {
+                li.textContent = part;
+            } else {
+                const link = document.createElement('a');
+                link.href = '#';
+                link.textContent = part;
+                link.dataset.path = current;
+                li.appendChild(link);
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    loadFiles(current);
+                });
+            }
+            breadcrumb.appendChild(li);
+        });
+    }
+
+    function handleKeyDown(e) {
+        if (e.ctrlKey && e.key === 'a') {
+            e.preventDefault();
+            currentFiles.forEach(file => selectFile(file.path));
+        }
+        if (e.ctrlKey && e.key === 'd') {
+            e.preventDefault();
+            clearSelection();
+        }
+        if (e.key === 'Backspace' && !e.target.matches('input, textarea')) {
+            e.preventDefault();
+            goBack();
+        }
+        if (e.key === 'F5') {
+            e.preventDefault();
+            loadFiles(currentPath);
+        }
+    }
+
+    function getFileExtension(filename) {
+        return filename.slice((filename.lastIndexOf('.') - 1 >>> 0) + 2).toLowerCase();
+    }
+
+    function getFileIcon(file) {
+        if (file.type === 'folder') {
+            return fileIcons.folder;
+        }
+        const ext = getFileExtension(file.name);
+        return fileIcons[ext] || fileIcons.default;
+    }
+
+    function getFileIconClass(file) {
+        if (file.type === 'folder') {
+            return fileTypeColors.folder;
+        }
+        const ext = getFileExtension(file.name);
+        return fileTypeColors[ext] || fileTypeColors.default;
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 B';
+        const units = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(1024));
+        return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + units[i];
+    }
+
+    function getParentPath(path) {
+        if (path === 'uploads') return 'uploads';
+        const parts = path.split('/');
+        parts.pop();
+        return parts.length === 0 ? 'uploads' : parts.join('/');
+    }
+
+    function showLoading() {
+        loading.style.display = 'block';
+        fileListContainer.style.display = 'none';
+        emptyState.style.display = 'none';
+    }
+
+    function hideLoading() {
+        loading.style.display = 'none';
+        fileListContainer.style.display = 'block';
+    }
+
+    function showEmptyState() {
+        fileListContainer.style.display = 'none';
+        emptyState.style.display = 'block';
+    }
+
+    function hideEmptyState() {
+        emptyState.style.display = 'none';
+    }
+
+    function showToast(message, type = 'success') {
+        const oldToast = document.querySelector('.toast-notification');
+        if (oldToast) oldToast.remove();
+        const colors = {
+            success: 'linear-gradient(135deg, #4dabf7, #339af0)',
+                          error: 'linear-gradient(135deg, #ff6b6b, #ff8e8e)',
+                          warning: 'linear-gradient(135deg, #ffd166, #ffb347)',
+                          info: 'linear-gradient(135deg, #a8edea, #fed6e3)'
+        };
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification position-fixed text-white';
+        toast.style.cssText = `
+        bottom: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        border-radius: 12px;
+        z-index: 1050;
+        animation: slideIn 0.3s ease-out;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        background: ${colors[type] || colors.success};
+        `;
+        toast.innerHTML = message;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.3s ease-out';
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 300);
+        }, 3000);
+        if (!document.querySelector('#toast-animations')) {
+            const style = document.createElement('style');
+            style.id = 'toast-animations';
+            style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+            `;
+            document.head.appendChild(style);
+        }
+    }
+});
+
+    </script>
 </body>
 </html>
